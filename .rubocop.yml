@@ -1,0 +1,12 @@
+LineLength:
+  Max: 120
+AllCops:
+  Exclude:
+    - 'spec/**/*'
+  DisplayCopNames: true
+Rails:
+  Enabled: true
+Documentation:
+  Enabled: false
+Style/EndOfLine:
+  Enabled: false
