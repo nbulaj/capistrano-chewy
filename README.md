@@ -1,5 +1,6 @@
 # Capistrano::Chewy
 [![Gem Version](https://badge.fury.io/rb/capistrano-chewy.svg)](http://badge.fury.io/rb/capistrano-chewy)
+[![Build Status](https://travis-ci.org/nbulaj/capistrano-chewy.svg?branch=master)](https://travis-ci.org/nbulaj/capistrano-chewy)
 
 Manage and continuously rebuild your ElasticSearch indexes with [Chewy](https://github.com/toptal/chewy/) and [Capistrano](https://github.com/capistrano/capistrano) v3.
 
