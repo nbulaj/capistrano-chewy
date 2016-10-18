@@ -107,21 +107,23 @@ namespace :deploy do
         # -Z, --ignore-trailing-space     ignore white space at line end
         # -B, --ignore-blank-lines        ignore changes where lines are all blank
         #
-        indexes_diff = capture(:diff, "-qZEB #{chewy_release_path} #{chewy_current_path}", raise_on_non_zero_exit: false)
+        diff_args = "-qZEB #{chewy_release_path} #{chewy_current_path}"
+        indexes_diff = capture :diff, diff_args, raise_on_non_zero_exit: false
+        changes = ::CapistranoChewy::DiffParser.parse(indexes_diff, chewy_current_path, chewy_release_path)
 
         # If diff is empty then indices have not changed
-        if indexes_diff.nil? || indexes_diff.strip.empty?
+        if changes.empty?
           info 'Skipping `deploy:chewy:rebuilding` (nothing changed in the Chewy path)'
         else
           within release_path do
             with rails_env: fetch(:chewy_env) do
-              changes = ::CapistranoChewy::DiffParser.parse(indexes_diff, chewy_current_path, chewy_release_path)
-
               # Reset indexes that were changed or added
               indexes_to_reset = changes.changed.concat(changes.added)
 
               if indexes_to_reset.any?
                 indexes = indexes_to_reset.map { |file| File.basename(file).gsub('_index.rb', '') }.join(',')
+
+                info "Modified or new indexes: #{indexes}"
                 execute :rake, "chewy:reset[#{indexes}]"
               end
 

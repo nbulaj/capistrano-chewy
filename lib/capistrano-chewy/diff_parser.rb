@@ -8,6 +8,10 @@ module CapistranoChewy
         @changed = []
         @added = []
       end
+
+      def empty?
+        [@removed, @changed, @added].all?(&:empty?)
+      end
     end
 
     CHANGED_FILE_PATTERN = /Files\s+.+\s+and\s+(.+)\s+differ/i

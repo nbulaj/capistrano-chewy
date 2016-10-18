@@ -38,6 +38,12 @@ Or install it yourself as:
 $ gem install capistrano-chewy
 ```
 
+If you want to use the latest version from the `master`, then add the following line to your Gemfile:
+
+```ruby
+gem 'capistrano-chewy', git: 'https://github.com/nbulaj/capistrano-chewy.git'
+```
+
 ## Usage
 
 Require it in your `Capfile`:
