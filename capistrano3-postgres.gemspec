@@ -21,4 +21,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'capistrano', '~> 3.0'
   spec.add_dependency 'chewy', '~> 0.4'
+
+  spec.add_development_dependency 'rspec', '~> 3.0'
 end

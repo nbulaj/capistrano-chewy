@@ -1,21 +1,17 @@
 # Capistrano::Chewy
+[![Gem Version](https://badge.fury.io/rb/capistrano-chewy.svg)](http://badge.fury.io/rb/capistrano-chewy)
 
 Manage and continuously rebuild your ElasticSearch indexes with [Chewy](https://github.com/toptal/chewy/) and [Capistrano](https://github.com/capistrano/capistrano) v3.
 
 `Capistrano::Chewy` gem adds automatic conditionally reset only modified Chewy indexes to your deploy flow so you do not have to build them manually.
 Moreover, it adds the possibility of manual index management with the base Chewy tasks on the remote server.
 
+## Requirements
+
+* Capistrano >= 3.0
+* Chewy >= 0.4
+
 ## Installation
-
-:fire: **IMPORTANT: currently under development!** :fire:
-
-Currently can be installed only with:
-
-```ruby
-gem 'capistrano-chewy', git: 'https://github.com/nbulaj/capistrano-chewy.git'
-```
-
-### WIP
 
 Add this line to your application's Gemfile:
 
@@ -29,7 +25,7 @@ or:
 gem 'capistrano-chewy', require: false, group: :development
 ```
 
-And then execute:
+And then run bundler:
 
 ```
 $ bundle
@@ -51,7 +47,7 @@ Require it in your `Capfile`:
 require 'capistrano/chewy'
 ```
 
-then you can use ```cap -T``` to list tasks:
+then you can use `cap -T` to list `Capistrano::Chewy` tasks:
 
 ```ruby
 cap deploy:chewy:rebuild            # Reset only modified Chewy indexes
@@ -72,6 +68,7 @@ set :chewy_path, 'app/my_indexes' # Path to Chewy indexes, 'app/chewy' by defaul
 set :chewy_env, :chewy_production # Environment variable for Chewy, equal to RAILS_ENV by default
 set :chewy_role, :web # Chewy role, :app by default
 set :chewy_skip, true # Skip processing Chewy indexes during deploy, false by default
+set :chewy_default_hooks, false # Add default capistrano-chewy hooks to your deploy flow, true by default
 ```
 
 ## Contributing
