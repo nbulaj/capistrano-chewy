@@ -58,6 +58,9 @@ cap deploy:chewy:update             # Updates data to all the indexes
 cap deploy:chewy:update[indexes]    # Updates data to the specified indexes
 ```
 
+By default `Capistrano::Chewy` adds `deploy:chewy:rebuild` task after `deploy:updated`.
+If you want to change it, then you need to disable default gem hooks by setting `chewy_default_hooks` to `false` in your deployment config and manually define the order of the tasks.
+
 ## Configuration
 
 You can setup the following:
