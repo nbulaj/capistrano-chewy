@@ -6,12 +6,12 @@ load File.expand_path('../tasks/chewy.rake', __FILE__)
 module CapistranoChewy
   class DiffParser
     class Result
-      attr_reader :removed, :changed, :new
+      attr_reader :removed, :changed, :added
 
       def initialize
         @removed = []
         @changed = []
-        @new = []
+        @added = []
       end
     end
 
@@ -34,7 +34,7 @@ module CapistranoChewy
 
           # New file
           /Only in (#{Regexp.quote(target_path)}):\s+(.+)/i.match(line) do |match|
-            result.new << File.join(match[1], match[2])
+            result.added << File.join(match[1], match[2])
             next
           end
         end

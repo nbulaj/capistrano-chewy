@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'capistrano-chewy'
   spec.version       = CapistranoChewy.gem_version
   spec.authors       = ['Nikita Bulai']
-  spec.date          = '2016-10-17'
+  spec.date          = '2016-10-18'
   spec.email         = ['bulainikita@gmail.com']
   spec.summary       = 'Manage and continuously rebuild your ElasticSearch indexes with Chewy and Capistrano'
   spec.description   = 'Manage and continuously rebuild your ElasticSearch indexes with Chewy and Capistrano v3.'
@@ -19,5 +19,6 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'capistrano', '~> 3.0'
+  spec.add_dependency 'capistrano', '~> 3.0'
+  spec.add_dependency 'chewy', '~> 0.4'
 end

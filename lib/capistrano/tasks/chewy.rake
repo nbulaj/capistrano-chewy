@@ -21,6 +21,7 @@ namespace :deploy do
             if indexes.any?
               execute :rake, "chewy:reset[#{indexes.join(',')}]"
             else
+              # Simply chewy:reset / chewy:update for Chewy > 0.8.4
               execute :rake, 'chewy:reset:all'
             end
           end
@@ -107,7 +108,7 @@ namespace :deploy do
               changes = ::CapistranoChewy::DiffParser.parse(indexes_diff, chewy_current_path, chewy_release_path)
 
               # Reset indexes that were changed or added
-              indexes_to_reset = changes.changed.concat(changes.new)
+              indexes_to_reset = changes.changed.concat(changes.added)
 
               if indexes_to_reset.any?
                 indexes = indexes_to_reset.map { |file| File.basename(file).gsub('_index.rb', '') }.join(',')
