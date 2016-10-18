@@ -1,17 +1,21 @@
 namespace :load do
   task :defaults do
+    set :chewy_default_hooks, -> { true }
     set :chewy_conditionally_reset, -> { true }
     set :chewy_path, -> { 'app/chewy' }
     set :chewy_env, -> { fetch(:rails_env, fetch(:stage)) }
     set :chewy_role, -> { :app }
-    set :chewy_skip, -> { false }
-    set :chewy_default_hooks, -> { true }
+    set :chewy_delete_removed_indexes, -> { true }
   end
 end
 
 namespace :deploy do
   before :starting, :check_chewy_hooks do
     invoke :'deploy:chewy:add_default_hooks' if fetch(:chewy_default_hooks)
+  end
+
+  after :reverted, :rollback_chewy_indexes do
+    invoke :'deploy:chewy:rollback_indexes' if fetch(:chewy_default_hooks)
   end
 
   namespace :chewy do
@@ -56,15 +60,15 @@ namespace :deploy do
       end
     end
 
+    desc 'Rollback indexes on deployment rollback'
+    task :rollback_indexes do
+      # TODO
+    end
+
     # Smart rebuild of modified Chewy indexes
     desc 'Reset Chewy indexes if they have been added, changed or removed'
     task :rebuild do
       on roles fetch(:chewy_role) do
-        if fetch(:chewy_skip)
-          info 'Skipping task according to the deploy settings'
-          exit 0
-        end
-
         info "Checking Chewy directory (#{fetch(:chewy_path)})"
 
         chewy_path = File.join(release_path, fetch(:chewy_path))
@@ -91,11 +95,6 @@ namespace :deploy do
     desc 'Runs smart Chewy indexes rebuilding (only for changed files)'
     task :rebuilding do
       on roles fetch(:chewy_role) do
-        if fetch(:chewy_skip)
-          info 'Skipping task according to the deploy settings'
-          exit 0
-        end
-
         chewy_path = fetch(:chewy_path)
         info "Checking changes in #{chewy_path}"
 
@@ -114,20 +113,34 @@ namespace :deploy do
         # If diff is empty then indices have not changed
         if changes.empty?
           info 'Skipping `deploy:chewy:rebuilding` (nothing changed in the Chewy path)'
+          exit 0
         else
-          within release_path do
-            with rails_env: fetch(:chewy_env) do
-              # Reset indexes that were changed or added
-              indexes_to_reset = changes.changed.concat(changes.added)
+          indexes_to_reset = changes.changed.concat(changes.added)
+          indexes_to_delete = changes.removed
 
-              if indexes_to_reset.any?
-                indexes = indexes_to_reset.map { |file| File.basename(file).gsub('_index.rb', '') }.join(',')
+          # Reset indexes which have been modified or added
+          if indexes_to_reset.any?
+            indexes = indexes_to_reset.map { |file| File.basename(file, '_index.rb') }.join(',')
 
+            within release_path do
+              with rails_env: fetch(:chewy_env) do
                 info "Modified or new indexes: #{indexes}"
                 execute :rake, "chewy:reset[#{indexes}]"
               end
+            end
+          end
 
-              # TODO: destroy removed indexes?
+          # Delete indexes which have been removed
+          if indexes_to_delete.any? && fetch(:chewy_delete_removed_indexes)
+            indexes = indexes_to_delete.map { |file| File.basename(file, '.rb').camelize }
+            runner_code = indexes.map { |index| "#{index}.delete"}.join("\n")
+
+            # Removed index files exists only in the old (current) release
+            within current_path do
+              with rails_env: fetch(:chewy_env) do
+                info "Indexes to remove: #{indexes.join(',')}"
+                execute :rails, "runner '#{runner_code}'"
+              end
             end
           end
         end

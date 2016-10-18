@@ -64,7 +64,7 @@ cap deploy:chewy:update             # Updates data to all the indexes
 cap deploy:chewy:update[indexes]    # Updates data to the specified indexes
 ```
 
-By default `Capistrano::Chewy` adds `deploy:chewy:rebuild` task after `deploy:updated`.
+By default `Capistrano::Chewy` adds `deploy:chewy:rebuild` task after `deploy:updated` and `deploy:chewy:rollback_indexes` after `deploy:reverted`.
 If you want to change it, then you need to disable default gem hooks by setting `chewy_default_hooks` to `false` in your deployment config and manually define the order of the tasks.
 
 ## Configuration
@@ -77,8 +77,8 @@ set :chewy_conditionally_reset, false # Reset only modified Chewy indexes, true 
 set :chewy_path, 'app/my_indexes' # Path to Chewy indexes, 'app/chewy' by default
 set :chewy_env, :chewy_production # Environment variable for Chewy, equal to RAILS_ENV by default
 set :chewy_role, :web # Chewy role, :app by default
-set :chewy_skip, true # Skip processing Chewy indexes during deploy, false by default
 set :chewy_default_hooks, false # Add default capistrano-chewy hooks to your deploy flow, true by default
+set :chewy_delete_removed_indexes, false # Delete indexes which have been removed
 ```
 
 ## Contributing
