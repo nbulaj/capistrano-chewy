@@ -105,7 +105,6 @@ namespace :deploy do
         # If diff is empty then indices have not changed
         if changes.empty?
           info 'Skipping `deploy:chewy:rebuilding` (nothing changed in the Chewy path)'
-          exit 0
         else
           indexes_to_reset = changes.changed.concat(changes.added)
           indexes_to_delete = changes.removed
