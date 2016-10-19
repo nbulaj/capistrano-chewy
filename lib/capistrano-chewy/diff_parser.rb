@@ -8,6 +8,10 @@ module CapistranoChewy
         @changed = []
         @added = []
       end
+
+      def empty?
+        [@removed, @changed, @added].all?(&:empty?)
+      end
     end
 
     CHANGED_FILE_PATTERN = /Files\s+.+\s+and\s+(.+)\s+differ/i
@@ -15,7 +19,7 @@ module CapistranoChewy
 
     class << self
       def parse(diff, current_path, release_path)
-        raise ArgumentError, 'current_path can not be the same as release_path!' if current_path == release_path
+        return Result.new if current_path == release_path
 
         diff.split("\n").each_with_object(Result.new) do |line, result|
           # File was changed

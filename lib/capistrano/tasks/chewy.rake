@@ -1,11 +1,11 @@
 namespace :load do
   task :defaults do
+    set :chewy_default_hooks, -> { true }
     set :chewy_conditionally_reset, -> { true }
     set :chewy_path, -> { 'app/chewy' }
     set :chewy_env, -> { fetch(:rails_env, fetch(:stage)) }
     set :chewy_role, -> { :app }
-    set :chewy_skip, -> { false }
-    set :chewy_default_hooks, -> { true }
+    set :chewy_delete_removed_indexes, -> { true }
   end
 end
 
@@ -17,7 +17,8 @@ namespace :deploy do
   namespace :chewy do
     # Adds default Capistrano::Chewy hooks to the deploy flow
     task :add_default_hooks do
-      after 'deploy:updated', 'deploy:chewy:rebuild'
+      after :'deploy:updated', 'deploy:chewy:rebuild'
+      after :'deploy:reverted', 'deploy:chewy:rebuild'
     end
 
     # Default Chewy rake tasks
@@ -60,11 +61,6 @@ namespace :deploy do
     desc 'Reset Chewy indexes if they have been added, changed or removed'
     task :rebuild do
       on roles fetch(:chewy_role) do
-        if fetch(:chewy_skip)
-          info 'Skipping task according to the deploy settings'
-          exit 0
-        end
-
         info "Checking Chewy directory (#{fetch(:chewy_path)})"
 
         chewy_path = File.join(release_path, fetch(:chewy_path))
@@ -91,11 +87,6 @@ namespace :deploy do
     desc 'Runs smart Chewy indexes rebuilding (only for changed files)'
     task :rebuilding do
       on roles fetch(:chewy_role) do
-        if fetch(:chewy_skip)
-          info 'Skipping task according to the deploy settings'
-          exit 0
-        end
-
         chewy_path = fetch(:chewy_path)
         info "Checking changes in #{chewy_path}"
 
@@ -107,25 +98,41 @@ namespace :deploy do
         # -Z, --ignore-trailing-space     ignore white space at line end
         # -B, --ignore-blank-lines        ignore changes where lines are all blank
         #
-        indexes_diff = capture(:diff, "-qZEB #{chewy_release_path} #{chewy_current_path}", raise_on_non_zero_exit: false)
+        diff_args = "-qZEB #{chewy_release_path} #{chewy_current_path}"
+        indexes_diff = capture :diff, diff_args, raise_on_non_zero_exit: false
+        changes = ::CapistranoChewy::DiffParser.parse(indexes_diff, chewy_current_path, chewy_release_path)
 
         # If diff is empty then indices have not changed
-        if indexes_diff.nil? || indexes_diff.strip.empty?
+        if changes.empty?
           info 'Skipping `deploy:chewy:rebuilding` (nothing changed in the Chewy path)'
+          exit 0
         else
-          within release_path do
-            with rails_env: fetch(:chewy_env) do
-              changes = ::CapistranoChewy::DiffParser.parse(indexes_diff, chewy_current_path, chewy_release_path)
+          indexes_to_reset = changes.changed.concat(changes.added)
+          indexes_to_delete = changes.removed
 
-              # Reset indexes that were changed or added
-              indexes_to_reset = changes.changed.concat(changes.added)
+          # Reset indexes which have been modified or added
+          if indexes_to_reset.any?
+            indexes = indexes_to_reset.map { |file| File.basename(file, '_index.rb') }.join(',')
 
-              if indexes_to_reset.any?
-                indexes = indexes_to_reset.map { |file| File.basename(file).gsub('_index.rb', '') }.join(',')
+            within release_path do
+              with rails_env: fetch(:chewy_env) do
+                info "Modified or new indexes: #{indexes}"
                 execute :rake, "chewy:reset[#{indexes}]"
               end
+            end
+          end
 
-              # TODO: destroy removed indexes?
+          # Delete indexes which have been removed
+          if indexes_to_delete.any? && fetch(:chewy_delete_removed_indexes)
+            indexes = indexes_to_delete.map { |file| File.basename(file, '.rb').camelize }.uniq
+            runner_code = "[#{indexes.join(', ')}].each(&:delete)"
+
+            # Removed index files exists only in the old (current) release
+            within current_path do
+              with rails_env: fetch(:chewy_env) do
+                info "Removing indexes: #{indexes.join(',')}"
+                execute :rails, "runner '#{runner_code}'"
+              end
             end
           end
         end
