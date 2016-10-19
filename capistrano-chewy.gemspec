@@ -7,8 +7,8 @@ Gem::Specification.new do |spec|
   spec.name          = 'capistrano-chewy'
   spec.version       = CapistranoChewy.gem_version
   spec.authors       = ['Nikita Bulai']
-  spec.date          = '2016-10-18'
-  spec.email         = ['bulainikita@gmail.com']
+  spec.date          = '2016-10-19'
+  spec.email         = ['bulajnikita@gmail.com']
   spec.summary       = 'Manage and continuously rebuild your ElasticSearch indexes with Chewy and Capistrano'
   spec.description   = 'Manage and continuously rebuild your ElasticSearch indexes with Chewy and Capistrano v3.'
   spec.homepage      = 'https://github.com/nbulaj/capistrano-chewy'

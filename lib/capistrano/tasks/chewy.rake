@@ -14,14 +14,11 @@ namespace :deploy do
     invoke :'deploy:chewy:add_default_hooks' if fetch(:chewy_default_hooks)
   end
 
-  after :reverted, :rollback_chewy_indexes do
-    invoke :'deploy:chewy:rollback_indexes' if fetch(:chewy_default_hooks)
-  end
-
   namespace :chewy do
     # Adds default Capistrano::Chewy hooks to the deploy flow
     task :add_default_hooks do
-      after 'deploy:updated', 'deploy:chewy:rebuild'
+      after :'deploy:updated', 'deploy:chewy:rebuild'
+      after :'deploy:reverted', 'deploy:chewy:rebuild'
     end
 
     # Default Chewy rake tasks
@@ -58,11 +55,6 @@ namespace :deploy do
           end
         end
       end
-    end
-
-    desc 'Rollback indexes on deployment rollback'
-    task :rollback_indexes do
-      # TODO
     end
 
     # Smart rebuild of modified Chewy indexes
@@ -132,13 +124,13 @@ namespace :deploy do
 
           # Delete indexes which have been removed
           if indexes_to_delete.any? && fetch(:chewy_delete_removed_indexes)
-            indexes = indexes_to_delete.map { |file| File.basename(file, '.rb').camelize }
-            runner_code = indexes.map { |index| "#{index}.delete"}.join("\n")
+            indexes = indexes_to_delete.map { |file| File.basename(file, '.rb').camelize }.uniq
+            runner_code = "[#{indexes.join(', ')}].each(&:delete)"
 
             # Removed index files exists only in the old (current) release
             within current_path do
               with rails_env: fetch(:chewy_env) do
-                info "Indexes to remove: #{indexes.join(',')}"
+                info "Removing indexes: #{indexes.join(',')}"
                 execute :rails, "runner '#{runner_code}'"
               end
             end

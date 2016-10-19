@@ -39,8 +39,14 @@ describe CapistranoChewy::DiffParser do
     end
 
     context 'with the same directories' do
-      it 'raises an error' do
-        expect { described_class.parse('', current_path, current_path) }.to raise_error(ArgumentError)
+      it 'returns blank result' do
+        result = described_class.parse('', current_path, current_path)
+
+        expect(result.changed).to be_empty
+        expect(result.added).to be_empty
+        expect(result.removed).to be_empty
+
+        expect(result.empty?).to be_truthy
       end
     end
   end

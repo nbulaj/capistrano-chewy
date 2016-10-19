@@ -4,7 +4,7 @@
 
 Manage and continuously rebuild your ElasticSearch indexes with [Chewy](https://github.com/toptal/chewy/) and [Capistrano](https://github.com/capistrano/capistrano) v3.
 
-`Capistrano::Chewy` gem adds automatic conditionally reset only modified Chewy indexes to your deploy flow so you do not have to build them manually.
+`Capistrano::Chewy` gem adds automatic conditionally reset of only modified Chewy indexes and the removal of deleted index files to your deploy flow so you do not have to do it manually.
 Moreover, it adds the possibility of manual index management with the base Chewy tasks on the remote server.
 
 ## Requirements
@@ -51,7 +51,9 @@ Require it in your `Capfile`:
 ```ruby
 # Capfile
 
+...
 require 'capistrano/chewy'
+...
 ```
 
 then you can use `cap -T` to list `Capistrano::Chewy` tasks:
@@ -64,7 +66,7 @@ cap deploy:chewy:update             # Updates data to all the indexes
 cap deploy:chewy:update[indexes]    # Updates data to the specified indexes
 ```
 
-By default `Capistrano::Chewy` adds `deploy:chewy:rebuild` task after `deploy:updated` and `deploy:chewy:rollback_indexes` after `deploy:reverted`.
+By default `Capistrano::Chewy` adds `deploy:chewy:rebuild` task after `deploy:updated` and `deploy:reverted`.
 If you want to change it, then you need to disable default gem hooks by setting `chewy_default_hooks` to `false` in your deployment config and manually define the order of the tasks.
 
 ## Configuration
@@ -78,7 +80,7 @@ set :chewy_path, 'app/my_indexes' # Path to Chewy indexes, 'app/chewy' by defaul
 set :chewy_env, :chewy_production # Environment variable for Chewy, equal to RAILS_ENV by default
 set :chewy_role, :web # Chewy role, :app by default
 set :chewy_default_hooks, false # Add default capistrano-chewy hooks to your deploy flow, true by default
-set :chewy_delete_removed_indexes, false # Delete indexes which have been removed
+set :chewy_delete_removed_indexes, false # Delete indexes which files have been deleted, true by default
 ```
 
 ## Contributing
