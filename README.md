@@ -62,7 +62,7 @@ require 'capistrano/chewy'
 then you can use `cap -T` to list `Capistrano::Chewy` tasks:
 
 ```ruby
-cap chewy:rebuild            # Reset only modified Chewy indexes
+cap chewy:rebuild            # Reset modified and delete removed Chewy indexes
 cap chewy:reset              # Destroy, recreate and import data to all the indexes
 cap chewy:reset[indexes]     # Destroy, recreate and import data to the specified indexes
 cap chewy:update             # Updates data to all the indexes
@@ -74,21 +74,25 @@ If you want to change it, then you need to disable default gem hooks by setting 
 
 ## Configuration
 
-You can setup the following:
+You can setup the following options:
 
 ```ruby
 # deploy.rb
 set :chewy_conditionally_reset, false    # Reset only modified Chewy indexes, true by default
 set :chewy_path, 'app/my_indexes'        # Path to Chewy indexes, 'app/chewy' by default
 set :chewy_env, :chewy_production        # Environment variable for Chewy, equal to RAILS_ENV by default
-set :chewy_role, :web                    # Chewy role, :app by default
-set :chewy_default_hooks, false          # Add default capistrano-chewy hooks to your deploy flow, true by default
+set :chewy_role, :web                    # Chewy role, :app by default  
+set :chewy_default_hooks, false          # Add default gem hooks to project deploy flow, true by default
 set :chewy_delete_removed_indexes, false # Delete indexes which files have been deleted, true by default
 ```
 
 ## Contributing
 
-1. Fork it ( http://github.com/nbulaj/capistrano-chewy/fork )
+You are very welcome to help improve `Capistrano:Chewy` if you have suggestions for features that other people can use or some code improvements.
+
+To contribute:
+
+1. Fork the project( http://github.com/nbulaj/capistrano-chewy/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
