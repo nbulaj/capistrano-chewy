@@ -1,6 +1,8 @@
 # Capistrano::Chewy
 [![Gem Version](https://badge.fury.io/rb/capistrano-chewy.svg)](http://badge.fury.io/rb/capistrano-chewy)
 [![Build Status](https://travis-ci.org/nbulaj/capistrano-chewy.svg?branch=master)](https://travis-ci.org/nbulaj/capistrano-chewy)
+[![Dependency Status](https://gemnasium.com/nbulaj/capistrano-chewy.svg)](https://gemnasium.com/nbulaj/capistrano-chewy)
+[![Code Climate](https://codeclimate.com/github/nbulaj/capistrano-chewy/badges/gpa.svg)](https://codeclimate.com/github/nbulaj/capistrano-chewy)
 
 Manage and continuously rebuild your ElasticSearch indexes with [Chewy](https://github.com/toptal/chewy/) and [Capistrano](https://github.com/capistrano/capistrano) v3.
 
@@ -76,12 +78,12 @@ You can setup the following:
 
 ```ruby
 # deploy.rb
-set :chewy_conditionally_reset, false     # Reset only modified Chewy indexes, true by default
-set :chewy_path, 'app/my_indexes'         # Path to Chewy indexes, 'app/chewy' by default
-set :chewy_env, :chewy_production         # Environment variable for Chewy, equal to RAILS_ENV by default
-set :chewy_role, :web                     # Chewy role, :app by default
-set :chewy_default_hooks, false           # Add default capistrano-chewy hooks to your deploy flow, true by default
-set :chewy_delete_removed_indexes, false  # Delete indexes which files have been deleted, true by default
+set :chewy_conditionally_reset, false    # Reset only modified Chewy indexes, true by default
+set :chewy_path, 'app/my_indexes'        # Path to Chewy indexes, 'app/chewy' by default
+set :chewy_env, :chewy_production        # Environment variable for Chewy, equal to RAILS_ENV by default
+set :chewy_role, :web                    # Chewy role, :app by default
+set :chewy_default_hooks, false          # Add default capistrano-chewy hooks to your deploy flow, true by default
+set :chewy_delete_removed_indexes, false # Delete indexes which files have been deleted, true by default
 ```
 
 ## Contributing

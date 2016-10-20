@@ -10,3 +10,5 @@ Documentation:
   Enabled: false
 Style/EndOfLine:
   Enabled: false
+Metrics/MethodLength:
+  Max: 12

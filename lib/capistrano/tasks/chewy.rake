@@ -40,6 +40,21 @@ namespace :chewy do
     end
   end
 
+  def run_default_chewy_task(task_name, indexes)
+    on roles fetch(:chewy_role) do
+      within release_path do
+        with rails_env: fetch(:chewy_env) do
+          if indexes.any?
+            execute :rake, "chewy:#{task_name}[#{indexes.join(',')}]"
+          else
+            # Simply chewy:reset / chewy:update for Chewy > 0.8.4
+            execute :rake, "chewy:#{task_name}:all"
+          end
+        end
+      end
+    end
+  end
+
   # Adds default Capistrano::Chewy hooks to the deploy flow
   task :add_default_hooks do
     after :'deploy:updated', 'chewy:rebuild'
@@ -49,37 +64,12 @@ namespace :chewy do
   # Default Chewy rake tasks
   desc 'Destroy, recreate and import data to all or specified (pass with [one,two]) indexes'
   task :reset do |_task, args|
-    indexes = args.extras
-
-    on roles fetch(:chewy_role) do
-      within release_path do
-        with rails_env: fetch(:chewy_env) do
-          if indexes.any?
-            execute :rake, "chewy:reset[#{indexes.join(',')}]"
-          else
-            # Simply chewy:reset / chewy:update for Chewy > 0.8.4
-            execute :rake, 'chewy:reset:all'
-          end
-        end
-      end
-    end
+    run_default_chewy_task(:reset, args.extras)
   end
 
   desc 'Updates data to all or specified (passed with [one,two]) indexes'
   task :update do |_task, args|
-    indexes = args.extras
-
-    on roles fetch(:chewy_role) do
-      within release_path do
-        with rails_env: fetch(:chewy_env) do
-          if indexes.any?
-            execute :rake, "chewy:update[#{indexes.join(',')}]"
-          else
-            execute :rake, 'chewy:update:all'
-          end
-        end
-      end
-    end
+    run_default_chewy_task(:update, args.extras)
   end
 
   # Smart rebuild of modified Chewy indexes
@@ -135,9 +125,7 @@ namespace :chewy do
         indexes_to_delete = changes.removed
 
         # Reset indexes which have been modified or added
-        if indexes_to_reset.any?
-          reset_modified_indexes(indexes_to_reset)
-        end
+        reset_modified_indexes(indexes_to_reset) if indexes_to_reset.any?
 
         # Delete indexes which have been removed
         if indexes_to_delete.any? && fetch(:chewy_delete_removed_indexes)
