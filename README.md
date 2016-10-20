@@ -9,6 +9,7 @@ Moreover, it adds the possibility of manual index management with the base Chewy
 
 ## Requirements
 
+* Ruby >= 1.9.3
 * Capistrano >= 3.0
 * Chewy >= 0.4
 
@@ -59,11 +60,11 @@ require 'capistrano/chewy'
 then you can use `cap -T` to list `Capistrano::Chewy` tasks:
 
 ```ruby
-cap deploy:chewy:rebuild            # Reset only modified Chewy indexes
-cap deploy:chewy:reset              # Destroy, recreate and import data to all the indexes
-cap deploy:chewy:reset[indexes]     # Destroy, recreate and import data to the specified indexes
-cap deploy:chewy:update             # Updates data to all the indexes
-cap deploy:chewy:update[indexes]    # Updates data to the specified indexes
+cap chewy:rebuild            # Reset only modified Chewy indexes
+cap chewy:reset              # Destroy, recreate and import data to all the indexes
+cap chewy:reset[indexes]     # Destroy, recreate and import data to the specified indexes
+cap chewy:update             # Updates data to all the indexes
+cap chewy:update[indexes]    # Updates data to the specified indexes
 ```
 
 By default `Capistrano::Chewy` adds `deploy:chewy:rebuild` task after `deploy:updated` and `deploy:reverted`.
@@ -75,12 +76,12 @@ You can setup the following:
 
 ```ruby
 # deploy.rb
-set :chewy_conditionally_reset, false # Reset only modified Chewy indexes, true by default
-set :chewy_path, 'app/my_indexes' # Path to Chewy indexes, 'app/chewy' by default
-set :chewy_env, :chewy_production # Environment variable for Chewy, equal to RAILS_ENV by default
-set :chewy_role, :web # Chewy role, :app by default
-set :chewy_default_hooks, false # Add default capistrano-chewy hooks to your deploy flow, true by default
-set :chewy_delete_removed_indexes, false # Delete indexes which files have been deleted, true by default
+set :chewy_conditionally_reset, false     # Reset only modified Chewy indexes, true by default
+set :chewy_path, 'app/my_indexes'         # Path to Chewy indexes, 'app/chewy' by default
+set :chewy_env, :chewy_production         # Environment variable for Chewy, equal to RAILS_ENV by default
+set :chewy_role, :web                     # Chewy role, :app by default
+set :chewy_default_hooks, false           # Add default capistrano-chewy hooks to your deploy flow, true by default
+set :chewy_delete_removed_indexes, false  # Delete indexes which files have been deleted, true by default
 ```
 
 ## Contributing
