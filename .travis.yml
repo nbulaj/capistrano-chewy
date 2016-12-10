@@ -4,7 +4,7 @@ bundler_args: --without yard guard benchmarks
 script: "rake spec"
 rvm:
   - 2.2.4
-  - 2.3.1
+  - 2.3.3
   - ruby-head
 matrix:
   allow_failures:

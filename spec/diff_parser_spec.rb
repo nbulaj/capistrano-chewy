@@ -1,24 +1,17 @@
 require 'spec_helper'
 
 describe CapistranoChewy::DiffParser do
-  let(:current_path) { '/project/1/app/chewy' }
-  let(:release_path) { '/project/2/app/chewy' }
+  let(:current_path) { File.expand_path('../stub/chewy_current', __FILE__) }
+  let(:release_path) { File.expand_path('../stub/chewy_release', __FILE__) }
 
-  # TODO: make a real diff
-  let(:full_diff) do
-    "Files #{current_path}/accounts_index.rb and #{release_path}/accounts_index.rb differ\n" \
-    "Files #{current_path}/posts_index.rb and #{release_path}/posts_index.rb differ\n" \
-    "Only in #{release_path}: applications_index.rb\n" \
-    "Files #{current_path}/comments_index.rb and #{release_path}/comments_index.rb differ\n" \
-    "Only in #{current_path}: users_index.rb\n"
-  end
+  let(:full_diff) { `diff -qZEB #{current_path} #{release_path}` }
 
   describe '#parse' do
     context 'with difference between directories' do
       it 'returns result object with removed, added and changed files' do
         result = described_class.parse(full_diff, current_path, release_path)
 
-        expect(result.changed).to eq(["#{release_path}/accounts_index.rb", "#{release_path}/posts_index.rb", "#{release_path}/comments_index.rb"])
+        expect(result.changed).to match_array(["#{release_path}/accounts_index.rb", "#{release_path}/posts_index.rb", "#{release_path}/comments_index.rb"])
         expect(result.added).to eq(["#{release_path}/applications_index.rb"])
         expect(result.removed).to eq(["#{current_path}/users_index.rb"])
 
