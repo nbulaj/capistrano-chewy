@@ -48,7 +48,7 @@ namespace :chewy do
             execute :rake, "chewy:#{task_name}[#{indexes.join(',')}]"
           else
             # Simply chewy:reset / chewy:update for Chewy > 0.8.4
-            execute :rake, "chewy:#{task_name}:all"
+            execute :rake, "chewy:#{task_name}"
           end
         end
       end
@@ -93,8 +93,8 @@ namespace :chewy do
           exit 1
         end
       else
-        info 'Running chewy:reset:all'
-        invoke :'chewy:reset:all'
+        info 'Running chewy:reset'
+        invoke :'chewy:reset'
       end
     end
   end
