@@ -30,13 +30,11 @@ namespace :chewy do
   end
 
   # Chewy supports journaling currently only in master
-  def support_journaling?(chewy_version)
-    Gem::Dependency.new('', '> 0.8.4').match?('', chewy_version)
+  def support_journaling?
+    Gem::Version.new(Chewy::VERSION) > Gem::Version.new('0.8.4')
   end
 
   def apply_journal_changes_from(time_in_seconds)
-    raise ArgumentError, 'argument must be an integer!' unless time_in_seconds.is_a?(Integer)
-
     unless support_journaling?
       warn <<-MSG.strip
           Your Chewy version doesn't support journaling. Disable :chewy_apply_journal option or update Chewy gem (>= 0.9).
@@ -143,7 +141,7 @@ namespace :chewy do
   desc 'Runs smart Chewy indexes rebuilding (only for changed files)'
   task :rebuilding do
     on roles fetch(:chewy_role) do
-      rebuilding_started_at = capture_runner('Time.current.to_i')
+      rebuilding_started_at = capture_runner('Time.current.to_i').to_i
 
       chewy_path = fetch(:chewy_path)
       info "Checking changes in #{chewy_path}"
