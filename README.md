@@ -7,7 +7,7 @@
 Manage and continuously rebuild your ElasticSearch indexes with [Chewy](https://github.com/toptal/chewy/) and [Capistrano](https://github.com/capistrano/capistrano) v3.
 
 `Capistrano::Chewy` gem adds automatic conditionally reset of only modified Chewy indexes and the removal of deleted index files to your deploy flow so you do not have to do it manually.
-Moreover, it adds the possibility of manual index management with the base Chewy tasks on the remote server.
+Also it can automatically apply changes from the Chewy journal after index reset (if configured). Moreover, it adds the possibility of manual index management with the base Chewy tasks on the remote server.
 
 ## Requirements
 
@@ -84,6 +84,7 @@ set :chewy_env, :chewy_production        # Environment variable for Chewy, equal
 set :chewy_role, :web                    # Chewy role, :app by default  
 set :chewy_default_hooks, false          # Add default gem hooks to project deploy flow, true by default
 set :chewy_delete_removed_indexes, false # Delete indexes which files have been deleted, true by default
+set :chewy_apply_journal, true           # Import changes from journal after reset (of any type)
 ```
 
 ## Contributing

@@ -6,6 +6,7 @@ namespace :load do
     set :chewy_env, -> { fetch(:rails_env, fetch(:stage)) }
     set :chewy_role, -> { :app }
     set :chewy_delete_removed_indexes, -> { true }
+    set :chewy_apply_journal, -> { false }
   end
 end
 
@@ -16,6 +17,46 @@ namespace :deploy do
 end
 
 namespace :chewy do
+  def capture_runner(ruby_code)
+    within release_path do
+      with rails_env: fetch(:chewy_env) do
+        return capture :rails, "runner \"#{ruby_code}\""
+      end
+    end
+  end
+
+  def journal_exists?
+    capture_runner('puts Chewy::Journal.exists?') == 'true'
+  end
+
+  # Chewy supports journaling currently only in master
+  def support_journaling?(chewy_version)
+    Gem::Dependency.new('', '> 0.8.4').match?('', chewy_version)
+  end
+
+  def apply_journal_changes_from(time_in_seconds)
+    raise ArgumentError, 'argument must be an integer!' unless time_in_seconds.is_a?(Integer)
+
+    unless support_journaling?
+      warn <<-MSG.strip
+          Your Chewy version doesn't support journaling. Disable :chewy_apply_journal option or update Chewy gem (>= 0.9).
+      MSG
+      return
+    end
+
+    unless journal_exists?
+      warn "Chewy Journal doesn't exists. Journaling is enabled in the settings?"
+      return
+    end
+
+    within release_path do
+      with rails_env: fetch(:chewy_env) do
+        info "Applying journal changes from #{Time.zone.at(time_in_seconds).strftime('%T %D %z')}"
+        execute :rails, "runner 'Chewy::Journal.apply_changes_from(Time.zone.at(#{time_in_seconds})'"
+      end
+    end
+  end
+
   def delete_indexes(index_files)
     index_classes = index_files.map { |file| File.basename(file, '.rb').camelize }.uniq
     runner_code = "[#{index_classes.join(', ')}].each(&:delete)"
@@ -102,6 +143,8 @@ namespace :chewy do
   desc 'Runs smart Chewy indexes rebuilding (only for changed files)'
   task :rebuilding do
     on roles fetch(:chewy_role) do
+      rebuilding_started_at = capture_runner('Time.current.to_i')
+
       chewy_path = fetch(:chewy_path)
       info "Checking changes in #{chewy_path}"
 
@@ -126,6 +169,9 @@ namespace :chewy do
 
         # Reset indexes which have been modified or added
         reset_modified_indexes(indexes_to_reset) if indexes_to_reset.any?
+
+        # Apply changes from journal that affected after index reset
+        apply_journal_changes_from(rebuilding_started_at) if fetch(:chewy_apply_journal)
 
         # Delete indexes which have been removed
         if indexes_to_delete.any? && fetch(:chewy_delete_removed_indexes)
