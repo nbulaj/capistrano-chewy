@@ -15,7 +15,7 @@ module CapistranoChewy
     end
 
     CHANGED_FILE_PATTERN = /Files\s+.+\s+and\s+(.+)\s+differ/i
-    NEW_OR_REMOVED_FILE_PATTERN = /Only in (.+):\s+(.+)/i
+    NEW_OR_REMOVED_FILE_PATTERN = /Only in (.+):\s+(.+.rb)/i
 
     class << self
       def parse(diff, current_path, release_path)
