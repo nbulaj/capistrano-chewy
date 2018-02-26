@@ -9,6 +9,8 @@ Manage and continuously rebuild your ElasticSearch indexes with [Chewy](https://
 `Capistrano::Chewy` gem adds automatic conditionally reset of only modified Chewy indexes and the removal of deleted index files to your deploy flow so you do not have to do it manually.
 Moreover, it adds the possibility of manual index management with the base Chewy tasks on the remote server.
 
+**DEPRECATED**: use [native Chewy rake tasks](https://github.com/toptal/chewy/#rake-tasks) for the same purposes.
+
 ## Requirements
 
 * Ruby >= 1.9.3
