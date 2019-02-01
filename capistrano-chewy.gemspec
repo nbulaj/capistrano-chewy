@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 1.9.3'
 
   spec.add_dependency 'capistrano', '~> 3.0'
-  spec.add_dependency 'chewy', '~> 0.4'
+  spec.add_dependency 'chewy'
 
   spec.add_development_dependency 'rspec', '~> 3.0'
 end
