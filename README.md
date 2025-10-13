@@ -4,6 +4,29 @@
 [![Dependency Status](https://gemnasium.com/nbulaj/capistrano-chewy.svg)](https://gemnasium.com/nbulaj/capistrano-chewy)
 [![Code Climate](https://codeclimate.com/github/nbulaj/capistrano-chewy/badges/gpa.svg)](https://codeclimate.com/github/nbulaj/capistrano-chewy)
 
+# NOT MAINTAINED ANYMORE
+
+Please se Chewy built-in tasks instead:
+
+```ruby
+namespace :chewy do
+  task :upgrade do
+    on roles :app do
+      within release_path do
+        with rails_env: fetch(:rails_env) do
+          execute :rake, 'chewy:parallel:upgrade'
+        end
+      end
+    end
+  end
+end
+
+after :'deploy:updated',  'chewy:upgrade'
+after :'deploy:reverted', 'chewy:upgrade'
+```
+
+# Description
+
 Manage and continuously rebuild your ElasticSearch indexes with [Chewy](https://github.com/toptal/chewy/) and [Capistrano](https://github.com/capistrano/capistrano) v3.
 
 `Capistrano::Chewy` gem adds automatic conditionally reset of only modified Chewy indexes and the removal of deleted index files to your deploy flow so you do not have to do it manually.
